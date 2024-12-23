@@ -6,6 +6,9 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
+import { authenticator } from 'otplib';
+import QRCode from 'qrcode';
+import bcrypt from 'bcrypt';
  
 const FormSchema = z.object({
   id: z.string(),
@@ -107,21 +110,101 @@ export async function deleteInvoice(id: string) {
     revalidatePath('/dashboard/invoices');
   }
 
-export async function authenticate(
-    prevState: string | undefined,
-    formData: FormData,
-  ) {
-    try {
-      await signIn('credentials', formData);
-    } catch (error) {
-      if (error instanceof AuthError) {
-        switch (error.type) {
-          case 'CredentialsSignin':
-            return 'Invalid credentials.';
-          default:
-            return 'Something went wrong.';
-        }
-      }
-      throw error;
+// export async function authenticate(
+//     prevState: string | undefined,
+//     formData: FormData,
+//   ) {
+//     try {
+//       await signIn('credentials', formData);
+//     } catch (error) {
+//       if (error instanceof AuthError) {
+//         switch (error.type) {
+//           case 'CredentialsSignin':
+//             return 'Invalid credentials.';
+//           default:
+//             return 'Something went wrong.';
+//         }
+//       }
+//       throw error;
+//     }
+//   }
+
+export async function authenticate(prevState: string | undefined, formData: FormData) {
+    const parsedCredentials = z
+      .object({ email: z.string().email(), password: z.string().min(6), otp: z.string() })
+      .safeParse(Object.fromEntries(formData.entries()));
+
+    console.log(Object.fromEntries(formData.entries()));
+  
+    if (!parsedCredentials.success) {
+      throw new Error('Invalid credentials');
     }
+  
+    const { email, password, otp } = parsedCredentials.data;
+    const user = await getUser(email);
+    console.log(user);
+    if (!user) {
+      throw new AuthError('CredentialsSignin');
+    }
+  
+    const passwordsMatch = await bcrypt.compare(password, user.password);
+    if (!passwordsMatch) {
+      throw new AuthError('CredentialsSignin');
+    }
+  
+    if (otp) {
+      const isValidOtp = authenticator.verify({ token: otp, secret: user.otpsecret });
+      if (!isValidOtp) {
+        throw new AuthError('Invalid OTP');
+      }
+      console.log("otp is valid")
+    } else {
+      return { otpRequired: true };
+    }
+    redirect('/dashboard');
+    // return { user: { id: user.id, name: user.name, email: user.email } }; // Return only necessary user details;
   }
+
+
+
+  export async function registerUser(prevState: string | undefined, formData: FormData) {
+    const parsedData = z
+      .object({name: z.string(), email: z.string().email(), password: z.string().min(6) })
+      .safeParse(Object.fromEntries(formData.entries()));
+  
+    if (!parsedData.success) {
+      throw new Error('Invalid registration data');
+    }
+  
+    const {name, email, password } = parsedData.data;
+    const hashedPassword = await bcrypt.hash(password, 10);
+  
+    // Generate OTP secret
+    const otpSecret = authenticator.generateSecret();
+
+    // await sql `ALTER TABLE users ADD COLUMN otpSecret TEXT`;
+//     console.log(await sql`SELECT column_name, data_type
+// FROM information_schema.columns
+// WHERE table_name = 'users'`)
+  
+    // Save user to database
+    await sql`INSERT INTO users (name, email, password, otpSecret) VALUES (${name}, ${email}, ${hashedPassword}, ${otpSecret})`;
+  
+    // Generate OTP Auth URL
+    const otpAuthUrl = authenticator.keyuri(email, 'YourAppName', otpSecret);
+  
+    // Generate QR code
+    const qrCode = await QRCode.toDataURL(otpAuthUrl);
+    // console.log(qrCode);
+    return qrCode;
+  }
+
+async function getUser(email: string) {
+  try {
+    const user = await sql`SELECT * FROM users WHERE email=${email}`;
+    return user.rows[0];
+  } catch (error) {
+    console.error('Failed to fetch user:', error);
+    throw new Error('Failed to fetch user.');
+  }
+}
