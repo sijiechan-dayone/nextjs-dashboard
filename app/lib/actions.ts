@@ -161,7 +161,8 @@ export async function authenticate(prevState: string | undefined, formData: Form
     } else {
       return { otpRequired: true };
     }
-    redirect('/dashboard');
+    await signIn('credentials', formData);
+    // redirect('/dashboard');
     // return { user: { id: user.id, name: user.name, email: user.email } }; // Return only necessary user details;
   }
 
