@@ -66,6 +66,9 @@ importers:
       '@types/node':
         specifier: 22.10.1
         version: 22.10.1
+      '@types/qrcode':
+        specifier: ^1.5.5
+        version: 1.5.5
       '@types/react':
         specifier: 19.0.0
         version: 19.0.0
@@ -424,6 +427,9 @@ packages:
 
   '@types/pg@8.11.6':
     resolution: {integrity: sha512-/2WmmBXHLsfRqzfHW7BNZ8SbYzE8OSk7i3WjFYvfgRHj7S1xj+16Je5fUKv3lVdVzk/zn9TXOqf+avFCFIE0yQ==}
+
+  '@types/qrcode@1.5.5':
+    resolution: {integrity: sha512-CdfBi/e3Qk+3Z/fXYShipBT13OJ2fDO2Q2w5CIP5anLTLIndQG9z6P1cnm+8zCWSpm5dnxMFd/uREtb0EXuQzg==}
 
   '@types/react-dom@19.0.0':
     resolution: {integrity: sha512-1KfiQKsH1o00p9m5ag12axHQSb3FOU9H20UTrujVSkNhuCrRHiQWFqgEnTNK5ZNfnzZv8UWrnXVqCmCF9fgY3w==}
@@ -2432,6 +2438,10 @@ snapshots:
       '@types/node': 22.10.1
       pg-protocol: 1.7.0
       pg-types: 4.0.2
+
+  '@types/qrcode@1.5.5':
+    dependencies:
+      '@types/node': 22.10.1
 
   '@types/react-dom@19.0.0':
     dependencies:
