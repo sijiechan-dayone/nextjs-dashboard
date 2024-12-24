@@ -17,11 +17,14 @@ export default function Page() {
           <p
             className={`text-xl text-gray-800 md:text-3xl md:leading-normal ${lusitana.className}`}
           >
-            <strong>Welcome to Acme.</strong> This is the example for the{" "}
-            <a href="https://nextjs.org/learn/" className="text-blue-500">
-              Next.js Learn Course
+            <strong>Welcome to Dayone.</strong> This is the example for{" "}
+            <a
+              href="https://en.wikipedia.org/wiki/Multi-factor_authentication"
+              className="text-blue-500"
+            >
+              Two Factor Authentication
             </a>
-            , brought to you by Vercel.
+            , brought to you by Dayone.
           </p>
           <Link
             href="/register"
@@ -39,14 +42,14 @@ export default function Page() {
         <div className="flex items-center justify-center p-6 md:w-3/5 md:px-28 md:py-12">
           {/* Add Hero Images Here */}
           <Image
-            src="/hero-desktop.png"
+            src="/background-mobile.svg"
             width={1000}
             height={760}
             className="hidden md:block"
             alt="Screenshots of the dashboard project showing desktop version"
           />
           <Image
-            src="/hero-mobile.png"
+            src="/background-mobile.svg"
             width={560}
             height={620}
             className="block md:hidden"
