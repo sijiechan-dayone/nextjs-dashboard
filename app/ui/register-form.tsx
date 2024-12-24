@@ -13,31 +13,7 @@ import { ArrowRightIcon } from "@heroicons/react/20/solid";
 export default function RegisterForm() {
   //   const router = useRouter();
   //   const [qrCode, setQrCode] = useState<string | null>(null);
-  const [qrCode, formAction] = useActionState(registerUser, undefined);
-
-  //   const handleSubmit = async (e) => {
-  //     e.preventDefault();
-  //     const formData = new FormData(e.target);
-  //     const response = await formAction(formData);
-
-  //     if (response?.qrCode) {
-  //       setQrCode(response.qrCode);
-  //     } else {
-  //       alert("Registration failed");
-  //     }
-  //   };
-
-  //   const handleFormAction = async (formData: FormData) => {
-  //     const response = await registerUser(formData);
-  //     if (response?.qrCode) {
-  //       router.push({
-  //         pathname: "/register/auth",
-  //         query: { qrCode: response.qrCode },
-  //       });
-  //     } else {
-  //       alert("Registration failed");
-  //     }
-  //   };
+  const [state, formAction] = useActionState(registerUser, undefined);
 
   return (
     <div>
@@ -122,7 +98,7 @@ export default function RegisterForm() {
           </div>
         </div>
       </form>
-      {qrCode && (
+      {state?.qrCode && (
         <>
           <h2 className="text-lg font-semibold text-gray-900 mt-6">
             Enable Two-Factor Authentication
@@ -133,7 +109,10 @@ export default function RegisterForm() {
               manually enter the text code instead.
             </p>
             <div className="flex justify-center">
-              <img src={qrCode} alt="QR Code for two-factor authentication" />
+              <img
+                src={state.qrCode}
+                alt="QR Code for two-factor authentication"
+              />
             </div>
           </div>
           <Link
