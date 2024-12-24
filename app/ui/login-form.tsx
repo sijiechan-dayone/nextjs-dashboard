@@ -10,6 +10,7 @@ import { ArrowRightIcon } from "@heroicons/react/20/solid";
 import { Button } from "./button";
 import { useActionState } from "react";
 import { authenticate } from "@/app/lib/actions";
+import { UserState } from "@/app/lib/actions";
 
 import { Metadata } from "next";
 
@@ -18,7 +19,11 @@ export const metadata: Metadata = {
 };
 
 export default function LoginForm() {
-  const [state, formAction] = useActionState(authenticate, undefined);
+  const initialState: UserState = { message: "", errors: {}, qrCode: "" };
+  const [state, formAction] = useActionState<UserState, FormData>(
+    authenticate,
+    initialState
+  );
   return (
     <form action={formAction} className="space-y-3">
       <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
@@ -90,10 +95,10 @@ export default function LoginForm() {
           aria-live="polite"
           aria-atomic="true"
         >
-          {state?.errorMessage && (
+          {state?.message && (
             <>
               <ExclamationCircleIcon className="h-5 w-5 text-red-500" />
-              <p className="text-sm text-red-500">{state.errorMessage}</p>
+              <p className="text-sm text-red-500">{state.message}</p>
             </>
           )}
         </div>

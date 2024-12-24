@@ -3,6 +3,7 @@ import Link from "next/link";
 // import { useState } from "react";
 import { useActionState } from "react";
 import { registerUser } from "@/app/lib/actions";
+import { UserState } from "@/app/lib/actions";
 // import QRCodeDisplay from "./qr-code-display";
 import { lusitana } from "@/app/ui/fonts";
 import { Button } from "./button";
@@ -13,7 +14,11 @@ import { ArrowRightIcon } from "@heroicons/react/20/solid";
 export default function RegisterForm() {
   //   const router = useRouter();
   //   const [qrCode, setQrCode] = useState<string | null>(null);
-  const [state, formAction] = useActionState(registerUser, undefined);
+  const initialState: UserState = { message: "", errors: {}, qrCode: "" };
+  const [state, formAction] = useActionState<UserState, FormData>(
+    registerUser,
+    initialState
+  );
 
   return (
     <div>

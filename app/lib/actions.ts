@@ -5,7 +5,7 @@ import { sql } from '@vercel/postgres';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { signIn } from '@/auth';
-import { AuthError } from 'next-auth';
+// import { AuthError, User } from 'next-auth';
 import { authenticator } from 'otplib';
 import QRCode from 'qrcode';
 import bcrypt from 'bcrypt';
@@ -152,7 +152,7 @@ export async function deleteInvoice(id: string) {
 
 const LoginUser = UserSchema.omit({ id: true, name: true});
 
-export async function authenticate(prevState: string | undefined, formData: FormData) {
+export async function authenticate(prevState: UserState, formData: FormData) {
 
     const validatedFields = LoginUser.safeParse({
         email: formData.get('email'),
@@ -182,12 +182,18 @@ export async function authenticate(prevState: string | undefined, formData: Form
     const user = await getUser(email);
     // console.log(user);
     if (!user) {
-      throw new AuthError('CredentialsSignin');
+    //   throw new AuthError('CredentialsSignin');
+      return {
+        message: 'Invalid password',
+      };
     }
   
     const passwordsMatch = await bcrypt.compare(password, user.password);
     if (!passwordsMatch) {
-      throw new AuthError('CredentialsSignin');
+    //   throw new AuthError('CredentialsSignin');
+      return {
+        message: 'Invalid credentials',
+      };
     }
   
     if (otp) {
@@ -195,16 +201,19 @@ export async function authenticate(prevState: string | undefined, formData: Form
       if (!isValidOtp) {
         // throw new AuthError('Invalid OTP');
         return {
-            errorMessage: 'Invalid OTP, please try again.',
+            // errors: { otp: 'Invalid OTP code' },
+            message: 'Invalid OTP, please try again.',
         };
       }
       console.log("otp is valid")
-    } else {
-      return { otpRequired: true };
     }
+    // } else {
+    //   return { };
+    // }
     await signIn('credentials', formData);
     // redirect('/dashboard');
     // return { user: { id: user.id, name: user.name, email: user.email } }; // Return only necessary user details;
+    return {};
   }
 
   const RegisterUser = UserSchema.omit({ id: true, otp: true });
@@ -212,7 +221,7 @@ export async function authenticate(prevState: string | undefined, formData: Form
   // Validate form using Zod
   
 
-  export async function registerUser(prevState: string | undefined, formData: FormData) {
+  export async function registerUser(prevState: UserState, formData: FormData) {
     const validatedFields = RegisterUser.safeParse({
         name: formData.get('name'),
         email: formData.get('email'),
