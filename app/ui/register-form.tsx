@@ -1,22 +1,19 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+// import { useState } from "react";
 import { useActionState } from "react";
 import { registerUser } from "@/app/lib/actions";
-import QRCodeDisplay from "./qr-code-display";
+// import QRCodeDisplay from "./qr-code-display";
 import { lusitana } from "@/app/ui/fonts";
 import { Button } from "./button";
-import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
+// import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import { ArrowRightIcon } from "@heroicons/react/20/solid";
 // import { useRouter } from "next/router";
 
 export default function RegisterForm() {
   //   const router = useRouter();
   //   const [qrCode, setQrCode] = useState<string | null>(null);
-  const [qrCode, formAction, isPending] = useActionState(
-    registerUser,
-    undefined
-  );
+  const [qrCode, formAction] = useActionState(registerUser, undefined);
 
   //   const handleSubmit = async (e) => {
   //     e.preventDefault();

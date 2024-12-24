@@ -18,7 +18,15 @@ const FormSchema = z.object({
   date: z.string(),
 });
 
-const CreateInvoice = FormSchema.omit({ id: true, date: true });
+const UserSchema = z.object({
+    id: z.string(),
+    name: z.string({invalid_type_error: 'Please enter a name.',}),
+    email: z.string().email({message: 'Please enter a proper email address.',}),
+    password: z.string({invalid_type_error: 'Please enter a password that is at least six characters long',}),
+    otp: z.string({invalid_type_error: 'Please enter a otp',})
+});
+
+
 
 export type State = {
     errors?: {
@@ -29,6 +37,18 @@ export type State = {
     message?: string | null;
   };
 
+export type UserState = {
+    errors?: {
+      name?: string[];
+      email?: string[];
+      password?: string[];
+      otp?: string[];
+    };
+    message?: string | null;
+    qrCode?: string | null;
+  };
+
+  const CreateInvoice = FormSchema.omit({ id: true, date: true });
 export async function createInvoice(prevState: State, formData: FormData) {
     // Validate form using Zod
     const validatedFields = CreateInvoice.safeParse({
@@ -58,6 +78,7 @@ export async function createInvoice(prevState: State, formData: FormData) {
         `;
     } catch (error) {
         // If a database error occurs, return a more specific error.
+        console.log(error);
         return {
         message: 'Database Error: Failed to Create Invoice.',
         };
@@ -129,20 +150,37 @@ export async function deleteInvoice(id: string) {
 //     }
 //   }
 
-export async function authenticate(prevState: string | undefined, formData: FormData) {
-    const parsedCredentials = z
-      .object({ email: z.string().email(), password: z.string().min(6), otp: z.string() })
-      .safeParse(Object.fromEntries(formData.entries()));
+const LoginUser = UserSchema.omit({ id: true, name: true});
 
-    console.log(Object.fromEntries(formData.entries()));
-  
-    if (!parsedCredentials.success) {
-      throw new Error('Invalid credentials');
+export async function authenticate(prevState: string | undefined, formData: FormData) {
+
+    const validatedFields = LoginUser.safeParse({
+        email: formData.get('email'),
+        password: formData.get('password'),
+        otp: formData.get('otp')
+    });
+
+    if (!validatedFields.success) {
+        return {
+        errors: validatedFields.error.flatten().fieldErrors,
+        message: 'Missing Fields. Failed to Register User.',
+        };
     }
+    const { email, password, otp } = validatedFields.data;
+
+    // const parsedCredentials = z
+    //   .object({ email: z.string().email(), password: z.string().min(6), otp: z.string() })
+    //   .safeParse(Object.fromEntries(formData.entries()));
+
+    // console.log(Object.fromEntries(formData.entries()));
   
-    const { email, password, otp } = parsedCredentials.data;
+    // if (!parsedCredentials.success) {
+    //   throw new Error('Invalid credentials');
+    // }
+  
+    // const { email, password, otp } = parsedCredentials.data;
     const user = await getUser(email);
-    console.log(user);
+    // console.log(user);
     if (!user) {
       throw new AuthError('CredentialsSignin');
     }
@@ -155,7 +193,10 @@ export async function authenticate(prevState: string | undefined, formData: Form
     if (otp) {
       const isValidOtp = authenticator.verify({ token: otp, secret: user.otpsecret });
       if (!isValidOtp) {
-        throw new AuthError('Invalid OTP');
+        // throw new AuthError('Invalid OTP');
+        return {
+            errorMessage: 'Invalid OTP, please try again.',
+        };
       }
       console.log("otp is valid")
     } else {
@@ -166,18 +207,35 @@ export async function authenticate(prevState: string | undefined, formData: Form
     // return { user: { id: user.id, name: user.name, email: user.email } }; // Return only necessary user details;
   }
 
+  const RegisterUser = UserSchema.omit({ id: true, otp: true });
 
+  // Validate form using Zod
+  
 
   export async function registerUser(prevState: string | undefined, formData: FormData) {
-    const parsedData = z
-      .object({name: z.string(), email: z.string().email(), password: z.string().min(6) })
-      .safeParse(Object.fromEntries(formData.entries()));
+    const validatedFields = RegisterUser.safeParse({
+        name: formData.get('name'),
+        email: formData.get('email'),
+        password: formData.get('password'),
+  });
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing Fields. Failed to Register User.',
+    };
+  }
+  const { name, email, password } = validatedFields.data;
+    
+    // const parsedData = z
+    //   .object({name: z.string(), email: z.string().email(), password: z.string().min(6) })
+    //   .safeParse(Object.fromEntries(formData.entries()));
   
-    if (!parsedData.success) {
-      throw new Error('Invalid registration data');
-    }
+    // if (!parsedData.success) {
+    //   throw new Error('Invalid registration data');
+    // }
   
-    const {name, email, password } = parsedData.data;
+    // const {name, email, password } = parsedData.data;
     const hashedPassword = await bcrypt.hash(password, 10);
   
     // Generate OTP secret
@@ -197,7 +255,7 @@ export async function authenticate(prevState: string | undefined, formData: Form
     // Generate QR code
     const qrCode = await QRCode.toDataURL(otpAuthUrl);
     // console.log(qrCode);
-    return qrCode;
+    return {qrCode: qrCode};
   }
 
 async function getUser(email: string) {
