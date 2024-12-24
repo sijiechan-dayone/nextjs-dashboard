@@ -10,6 +10,7 @@ import { Button } from "./button";
 // import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import { ArrowRightIcon } from "@heroicons/react/20/solid";
 // import { useRouter } from "next/router";
+import Image from "next/image";
 
 export default function RegisterForm() {
   //   const router = useRouter();
@@ -114,7 +115,7 @@ export default function RegisterForm() {
               manually enter the text code instead.
             </p>
             <div className="flex justify-center">
-              <img
+              <Image
                 src={state.qrCode}
                 alt="QR Code for two-factor authentication"
               />
