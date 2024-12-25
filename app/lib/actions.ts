@@ -46,6 +46,7 @@ export type UserState = {
     };
     message?: string | null;
     qrCode?: string | null;
+    registered?: boolean | null;
   };
 
   const CreateInvoice = FormSchema.omit({ id: true, date: true });
@@ -282,7 +283,7 @@ export async function authenticate(prevState: UserState, formData: FormData) {
     // Generate QR code
     const qrCode = await QRCode.toDataURL(otpAuthUrl);
     // console.log(qrCode);
-    return {qrCode: qrCode};
+    return {qrCode: qrCode, registered: true};
   }
 
 async function getUser(email: string) {
