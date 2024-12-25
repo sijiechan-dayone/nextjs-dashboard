@@ -118,6 +118,8 @@ export default function RegisterForm() {
               <Image
                 src={state.qrCode}
                 alt="QR Code for two-factor authentication"
+                width={200}
+                height={100}
               />
             </div>
           </div>

@@ -12,6 +12,8 @@ export default function AcmeLogo() {
         src="/dayone-logo.svg"
         alt="Dayone Logo"
         className="w-full h-full object-contain"
+        width={400}
+        height={200}
       />
       {/* <Logo /> */}
       {/* <p className="text-[44px]">Dayone</p> */}
