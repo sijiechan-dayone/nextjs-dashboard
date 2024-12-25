@@ -250,13 +250,31 @@ export async function authenticate(prevState: UserState, formData: FormData) {
     // Generate OTP secret
     const otpSecret = authenticator.generateSecret();
 
-    // await sql `ALTER TABLE users ADD COLUMN otpSecret TEXT`;
+//     await sql `ALTER TABLE users ADD COLUMN otpSecret TEXT`;
 //     console.log(await sql`SELECT column_name, data_type
 // FROM information_schema.columns
 // WHERE table_name = 'users'`)
   
     // Save user to database
-    await sql`INSERT INTO users (name, email, password, otpSecret) VALUES (${name}, ${email}, ${hashedPassword}, ${otpSecret})`;
+    try {
+        await sql`INSERT INTO users (name, email, password, otpSecret) 
+          VALUES (${name}, ${email}, ${hashedPassword}, ${otpSecret})`;
+      } catch (error) {
+        console.error('Registration error:', error);
+        
+        // Check for duplicate email error (PostgreSQL error code 23505)
+        if (typeof error === 'object' && error !== null && 'code' in error && error.code === '23505') {
+          return {
+            errors: { email: ['This email is already registered'] },
+            message: 'Registration failed - email already exists',
+          };
+        }
+        
+        return {
+          errors: {},
+          message: 'Database Error: Failed to create user.',
+        };
+      }
   
     // Generate OTP Auth URL
     const otpAuthUrl = authenticator.keyuri(email, 'YourAppName', otpSecret);
