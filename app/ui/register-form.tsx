@@ -43,9 +43,18 @@ export default function RegisterForm() {
                   type="text"
                   name="name"
                   placeholder="Enter your name"
+                  aria-describedby="name-error"
                   required
                 />
               </div>
+            </div>
+            <div id="name-error" aria-live="polite" aria-atomic="true">
+              {state.errors?.name &&
+                state.errors.name.map((error: string) => (
+                  <p className="mt-2 text-sm text-red-500" key={error}>
+                    {error}
+                  </p>
+                ))}
             </div>
           </div>
           <div className="w-full">
@@ -63,9 +72,18 @@ export default function RegisterForm() {
                   type="email"
                   name="email"
                   placeholder="Enter your email address"
+                  aria-describedby="email-error"
                   required
                 />
               </div>
+            </div>
+            <div id="email-error" aria-live="polite" aria-atomic="true">
+              {state.errors?.email &&
+                state.errors.email.map((error: string) => (
+                  <p className="mt-2 text-sm text-red-500" key={error}>
+                    {error}
+                  </p>
+                ))}
             </div>
             <div className="mt-4">
               <label
@@ -83,8 +101,17 @@ export default function RegisterForm() {
                   placeholder="Enter password"
                   required
                   minLength={6}
+                  aria-describedby="password-error"
                 />
               </div>
+            </div>
+            <div id="password-error" aria-live="polite" aria-atomic="true">
+              {state.errors?.password &&
+                state.errors.password.map((error: string) => (
+                  <p className="mt-2 text-sm text-red-500" key={error}>
+                    {error}
+                  </p>
+                ))}
             </div>
           </div>
           <Button className="mt-4 w-full">
