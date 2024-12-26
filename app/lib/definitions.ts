@@ -75,6 +75,14 @@ export type FormattedCustomersTable = {
   total_paid: string;
 };
 
+export type UsersTableType = {
+    id: string
+    name: string;
+    email: string;
+    password: string;
+    otpsecret: string;
+}
+
 export type CustomerField = {
   id: string;
   name: string;
