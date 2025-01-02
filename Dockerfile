@@ -3,10 +3,10 @@ FROM node:20-alpine AS base
 
 COPY .env.production .env
 
-# Make sure environment variables are available during build
-ARG AUTH_SECRET
-ENV AUTH_SECRET=${AUTH_SECRET}
-ENV NEXTAUTH_SECRET=${AUTH_SECRET}
+# # Make sure environment variables are available during build
+# ARG AUTH_SECRET
+# ENV AUTH_SECRET=${AUTH_SECRET}
+# ENV NEXTAUTH_SECRET=${AUTH_SECRET}
 
 ### Dependencies ###
 FROM base AS deps
