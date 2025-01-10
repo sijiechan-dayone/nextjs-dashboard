@@ -1,10 +1,36 @@
 # version: '3.9'
 
 services:
+  db:
+      image: postgres
+      restart: always
+      ports:
+        - "5432:5432"
+      # set shared memory limit when using docker-compose
+      shm_size: 128mb
+      # or set shared memory limit when deploy via swarm stack
+      # volumes:
+      #    - postgres_data:/var/lib/postgresql/data
+      #  - type: tmpfs
+      #    target: /dev/shm
+      #    tmpfs:
+      #      size: 134217728 # 128*2^20 bytes = 128Mb
+      volumes:
+        - pgdata:/var/lib/postgresql/data 
+      environment:
+        POSTGRES_PASSWORD: password
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
   nextapp:
     container_name: nextapp
     image: nextapp
-    build: .
+    build:
+      network: host
+    depends_on:
+      - db
     ports:
       - "3000:3000"
     # environment:
@@ -12,6 +38,8 @@ services:
     env_file: 
       - path: .env.production
         required: true # default
+  # Use postgres/example user/password credentials
+  
   # demo:
   #   container_name: demo
   #   image: demo
@@ -23,4 +51,6 @@ services:
   #   env_file:
   #     - path: .env.production
   #       required: true # default
+volumes:
+  pgdata:
 

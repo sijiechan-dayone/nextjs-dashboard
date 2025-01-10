@@ -7,6 +7,7 @@ export type User = {
   name: string;
   email: string;
   password: string;
+  otpsecret: string;
 };
 
 export type Customer = {

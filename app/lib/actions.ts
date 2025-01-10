@@ -1,7 +1,7 @@
 'use server';
 
 import { z } from 'zod';
-import { sql } from '@vercel/postgres';
+import sql from './db';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { signIn } from '@/auth';
@@ -9,6 +9,7 @@ import { signIn } from '@/auth';
 import { authenticator } from 'otplib';
 import QRCode from 'qrcode';
 import bcrypt from 'bcrypt';
+import { User } from './definitions';
  
 const FormSchema = z.object({
   id: z.string(),
@@ -288,8 +289,8 @@ export async function authenticate(prevState: UserState, formData: FormData) {
 
 async function getUser(email: string) {
   try {
-    const user = await sql`SELECT * FROM users WHERE email=${email}`;
-    return user.rows[0];
+    const user = await sql<User[]>`SELECT * FROM users WHERE email=${email}`;
+    return user[0];
   } catch (error) {
     console.error('Failed to fetch user:', error);
     throw new Error('Failed to fetch user.');
